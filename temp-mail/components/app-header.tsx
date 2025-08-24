@@ -115,16 +115,7 @@ export function AppHeader({ initialSession }: { initialSession: Session | null; 
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild><Link href="/dashboard">Dashboard</Link></DropdownMenuItem>
-            <DropdownMenuItem asChild><a href="https://whatsyour.info/billing" target="_blank" rel="noopener noreferrer">Billing</a></DropdownMenuItem>
-            <DropdownMenuItem asChild><a href="https://whatsyour.info/profile" target="_blank" rel="noopener noreferrer">WYI Profile</a></DropdownMenuItem>
             <DropdownMenuSeparator />
-            {!isPro && (
-              <div className="p-1">
-                <Button asChild className="w-full" size="sm">
-                  <Link href="/pricing">Upgrade to Pro</Link>
-                </Button>
-              </div>
-            )}
             <DropdownMenuItem onClick={() => signOut()}>Logout</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

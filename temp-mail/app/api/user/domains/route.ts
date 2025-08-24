@@ -42,7 +42,7 @@ export async function POST(request: Request) {
             method: 'POST',
             body: JSON.stringify({
                 domain: domain,
-                wyiUserId: session.user.id // Pass the authenticated user ID
+                userId: session.user.id // Pass the authenticated user ID
             }),
         });
 
@@ -67,7 +67,7 @@ export async function DELETE(request: Request) {
     try {
         const serviceResponse = await fetchFromServiceAPI(`/user/domains`, {
             method: 'DELETE',
-            body: JSON.stringify({ domain, wyiUserId: session.user.id }) // Pass the authenticated user ID,
+            body: JSON.stringify({ domain, userId: session.user.id }) // Pass the authenticated user ID,
         });
         return NextResponse.json(serviceResponse);
 

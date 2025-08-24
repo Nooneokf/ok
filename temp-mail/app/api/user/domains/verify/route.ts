@@ -23,7 +23,7 @@ export async function POST(request: Request) {
             method: 'POST',
             body: JSON.stringify({
                 domain: domain,
-                wyiUserId: session.user.id // Pass the authenticated user ID
+                userId: session.user.id // Pass the authenticated user ID
             }),
         });
         

@@ -28,7 +28,7 @@ export async function POST(request: Request) {
         const serviceResponse = await fetchFromServiceAPI('/user/inboxes', {
             method: 'POST',
             body: JSON.stringify({
-                wyiUserId: session.user.id,
+                userId: session.user.id,
                 inboxName: inboxName,
             }),
         });

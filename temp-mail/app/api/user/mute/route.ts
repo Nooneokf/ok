@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     try {
         const serviceResponse = await fetchFromServiceAPI(`/user/mute`, {
             method: 'POST',
-            body: JSON.stringify({ senderToMute, wyiUserId: session.user.id }),
+            body: JSON.stringify({ senderToMute, userId: session.user.id }),
         });
         return NextResponse.json(serviceResponse);
     } catch (error: any) {
@@ -42,7 +42,7 @@ export async function DELETE(request: Request) {
         // The HTTP method and path should match the Express route definition.
         const serviceResponse = await fetchFromServiceAPI(`/user/mute`, {
             method: 'DELETE',
-            body: JSON.stringify({ senderToUnmute, wyiUserId: session.user.id }),
+            body: JSON.stringify({ senderToUnmute, userId: session.user.id }),
         });
         return NextResponse.json(serviceResponse);
     } catch (error: any) {

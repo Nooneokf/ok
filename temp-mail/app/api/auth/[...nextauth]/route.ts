@@ -25,20 +25,20 @@ declare module 'next-auth' {
     interface Session {
         user: {
             id: string;
-            plan: 'discord';
+            plan: 'pro';
         } & DefaultSession['user'];
     }
 
     interface User {
         id: string;
-        plan: 'discord';
+        plan: 'pro';
     }
 }
 
 declare module 'next-auth/jwt' {
     interface JWT {
         id: string;
-        plan: 'discord';
+        plan: 'pro';
     }
 }
 
@@ -52,7 +52,7 @@ function processUserData(profile: DiscordProfile) {
         id: profile.id,
         email: profile.email,
         name: profile.username,
-        plan: profile.premium_type ? 'discord' : 'discord',
+        plan: 'pro', // All Discord users get pro plan
     };
 }
 
@@ -134,7 +134,7 @@ export const authOptions: NextAuthOptions = {
                     name: profile.username,
                     email: profile.email,
                     image: avatarUrl,
-                    plan: profile.premium_type ? 'discord' : 'discord',
+                    plan: 'pro', // All Discord users get pro plan
                 };
             },
         }),

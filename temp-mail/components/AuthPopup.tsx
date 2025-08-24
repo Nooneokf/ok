@@ -11,6 +11,7 @@ import { CheckCircle, XCircle, Info, Loader2, Gift } from "lucide-react"; // <--
 import { signIn } from "next-auth/react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { FaDiscord } from "react-icons/fa";
 
 // --- DATA STRUCTURE FOR PLANS ---
 // We define the features and plan details here to keep the JSX clean.
@@ -32,25 +33,6 @@ const plansData = [
             { text: "No Custom Email Names", tooltip: "You can only use randomly generated email addresses.", notAvailable: true },
             { text: "No Keyboard Shortcuts", notAvailable: true },
             { text: "No Cloud or Browser Storage", notAvailable: true },
-            { text: "No Custom Domains", notAvailable: true },
-        ]
-    },
-    {
-        title: "WYI Free",
-        description: "For casual, regular use.",
-        isPopular: false,
-        button: {
-            label: "Login with WYI",
-            variant: "outline",
-            onClick: () => signIn('wyi', { callbackUrl: '/dashboard' })
-        },
-        features: [
-            { text: "10 Emails per Mailbox", tooltip: "The 10 most recent emails are kept on our server." },
-            { text: "24-Hour Email Storage", tooltip: "Emails are automatically deleted after 24 hours." },
-            { text: "1MB Attachment Limit", tooltip: "Receive emails with attachments up to 1MB." },
-            { text: "Custom Email Names", tooltip: "Create your own custom email address prefixes." },
-            { text: "Basic Keyboard Shortcuts" },
-            { text: "Save to Browser Storage", tooltip: "You can choose to save important emails forever in your own browser." },
             { text: "No Custom Domains", notAvailable: true },
         ]
     },
@@ -188,7 +170,7 @@ export function AuthPopup({ isOpen, onClose }: AuthPopupProps) {
                         </DialogDescription>
                     </DialogHeader>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-6">
                         {plansData.map((plan) => {
                             const isLoadingThisPlan = loadingPlan === plan.title; // <-- NEW: Check if this plan is loading
                             return (
@@ -205,7 +187,7 @@ export function AuthPopup({ isOpen, onClose }: AuthPopupProps) {
                                     <p className="text-muted-foreground text-center text-sm mb-4 h-10">{plan.description}</p>
     
                                     <div className="text-center mb-6 h-16 flex items-center justify-center">
-                                        {plan.title === "WYI Pro" ? (
+                                        {plan.title === "Discord Pro" ? (
                                             isGeoLoading ? (
                                                 <div className="space-y-2">
                                                     <Skeleton className="h-8 w-24 mx-auto" />
@@ -247,8 +229,8 @@ export function AuthPopup({ isOpen, onClose }: AuthPopupProps) {
                                             </>
                                         ) : (
                                             <>
-                                                {plan.title.includes("WYI") && ( // Show logo for WYI plans
-                                                    <img src='/wyi.png' alt="WYI Logo" className="w-5 h-5 mr-2" />
+                                                {plan.title.includes("Discord") && ( // Show logo for Discord plans
+                                                    <FaDiscord className="w-5 h-5 mr-2" />
                                                 )}
                                                 {plan.button.label}
                                             </>

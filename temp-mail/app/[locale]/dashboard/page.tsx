@@ -3,7 +3,6 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { CustomDomainManager } from "@/components/dashboard/CustomDomainManager";
 import { MuteListManager } from "@/components/dashboard/MuteListManager";
 import UnauthView from "@/components/dashboard/UnauthView";
-import NotProView from "@/components/dashboard/NotProView";
 import { fetchFromServiceAPI } from "@/lib/api";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AppHeader } from "@/components/app-header";
@@ -21,19 +20,18 @@ export default async function DashboardPage({
     const session = await getServerSession(authOptions);
 
     let data: DashboardData | null = null;
-    let accessLevel: "unauth" | "notpro" | "pro" = "unauth";
+    let accessLevel: "unauth" | "pro" = "unauth";
 
     if (session?.user) {
         console.log(session.user)
-        if (session.user.plan === "pro") {
-            accessLevel = "pro";
-            try {
-                data = await fetchFromServiceAPI(`/user/${session.user.id}/dashboard-data`)
-            } catch (e) {
-                accessLevel = 'unauth'
-            }
-        } else {
-            accessLevel = "notpro";
+        // All Discord users are pro by default
+        accessLevel = "pro";
+        try {
+            data = await fetchFromServiceAPI(`/user/${session.user.id}/dashboard-data`)
+        } catch (e) {
+            // If API fails, still show pro dashboard with empty data
+            console.error("Failed to fetch dashboard data:", e);
+            data = { customDomains: [], mutedSenders: [] };
         }
     }
 
@@ -42,15 +40,17 @@ export default async function DashboardPage({
             <div className="min-h-screen max-w-[100vw] bg-background">
                 <AppHeader initialSession={session} />
                 {accessLevel === "unauth" && <UnauthView />}
-                {accessLevel === "notpro" && <NotProView />}
                 {accessLevel === "pro" && data && (
-                    <>
-                        <h1 className="text-3xl w-full text-center font-bold my-8">Pro Dashboard</h1>
-                        <div className="grid gap-8">
+                    <div className="container mx-auto px-4 py-8">
+                        <div className="text-center mb-8">
+                            <h1 className="text-4xl font-bold mb-2">Discord Pro Dashboard</h1>
+                            <p className="text-muted-foreground">Manage your custom domains and email preferences</p>
+                        </div>
+                        <div className="grid gap-8 max-w-6xl mx-auto">
                             <CustomDomainManager initialDomains={data.customDomains} />
                             <MuteListManager initialSenders={data.mutedSenders} />
                         </div>
-                    </>
+                    </div>
                 )}
             </div>
         </ThemeProvider>

@@ -15,7 +15,7 @@ export async function GET(request: Request) {
 
     try {
         // 2. Instead of connecting to Mongo, call your backend service API.
-        // The `session.user.id` holds the `wyiUserId`.
+        // The `session.user.id` holds the `userId`.
         const serviceResponse = await fetchFromServiceAPI(`/user/profile/${session.user.id}`);
         
         // 3. Check if the backend returned a successful response.
