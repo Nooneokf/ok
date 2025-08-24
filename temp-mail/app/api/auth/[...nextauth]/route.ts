@@ -25,20 +25,23 @@ declare module 'next-auth' {
     interface Session {
         user: {
             id: string;
-            plan: 'pro';
+            plan: 'free' | 'pro';
+            hasProCode?: boolean;
         } & DefaultSession['user'];
     }
 
     interface User {
         id: string;
-        plan: 'pro';
+        plan: 'free' | 'pro';
+        hasProCode?: boolean;
     }
 }
 
 declare module 'next-auth/jwt' {
     interface JWT {
         id: string;
-        plan: 'pro';
+        plan: 'free' | 'pro';
+        hasProCode?: boolean;
     }
 }
 
@@ -52,7 +55,8 @@ function processUserData(profile: DiscordProfile) {
         id: profile.id,
         email: profile.email,
         name: profile.username,
-        plan: 'pro', // All Discord users get pro plan
+        plan: 'free', // Discord users start with free plan
+        hasProCode: false,
     };
 }
 
@@ -134,7 +138,8 @@ export const authOptions: NextAuthOptions = {
                     name: profile.username,
                     email: profile.email,
                     image: avatarUrl,
-                    plan: 'pro', // All Discord users get pro plan
+                    plan: 'free', // Discord users start with free plan
+                    hasProCode: false,
                 };
             },
         }),
@@ -154,18 +159,33 @@ export const authOptions: NextAuthOptions = {
             return true;
         },
 
-        async jwt({ token, user }) {
+        async jwt({ token, user, trigger, session }) {
             if (user) {
                 token.id = user.id;
                 token.plan = user.plan;
+                token.hasProCode = user.hasProCode;
             }
+            
+            // Check if we need to update the plan based on session update
+            if (trigger === 'update' && session) {
+                token.plan = session.plan || token.plan;
+                token.hasProCode = session.hasProCode ?? token.hasProCode;
+            }
+            
             return token;
         },
 
-        async session({ session, token }) {
+        async session({ session, token, trigger, newSession }) {
             if (session.user) {
                 session.user.id = token.id;
                 session.user.plan = token.plan;
+                session.user.hasProCode = token.hasProCode;
+                
+                // Check if we need to update plan based on client-side trigger
+                if (trigger === 'update' && newSession) {
+                    session.user.plan = newSession.plan || session.user.plan;
+                    session.user.hasProCode = newSession.hasProCode ?? session.user.hasProCode;
+                }
             }
             return session;
         },

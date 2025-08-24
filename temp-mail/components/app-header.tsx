@@ -75,7 +75,6 @@ export function AppHeader({ initialSession }: { initialSession: Session | null; 
     }
 
     if (status === 'authenticated' && session?.user) {
-      // @ts-ignore - Assuming 'plan' is a custom property on the session user object
       const userPlan = session.user?.plan || 'free';
       const isPro = userPlan === 'pro';
 
@@ -83,13 +82,17 @@ export function AppHeader({ initialSession }: { initialSession: Session | null; 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-11 w-11 rounded-full p-0">
-              {/* Avatar Container */}
-              <div className={`relative h-full w-full rounded-full border-2 ${isPro ? 'border-yellow-400' : 'border-slate-300'}`}>
+              {/* Avatar Container with Pro Glow Effect */}
+              <div className={`relative h-full w-full rounded-full border-2 transition-all duration-300 ${
+                isPro 
+                  ? 'border-yellow-400 shadow-lg shadow-yellow-400/20' 
+                  : 'border-slate-300 hover:border-slate-400'
+              }`}>
                 {session.user.image ? (
                   <img
                     src={session.user.image}
                     alt={session.user.name || 'User avatar'}
-                    className="rounded-full object-fill"
+                    className="rounded-full object-cover w-full h-full"
                   />
                 ) : (
                   <div className="flex items-center justify-center h-full w-full bg-muted rounded-full text-muted-foreground">
@@ -98,23 +101,51 @@ export function AppHeader({ initialSession }: { initialSession: Session | null; 
                 )}
               </div>
 
-              {/* Plan Badge on Avatar */}
+              {/* Enhanced Plan Badge */}
               <div className="absolute -bottom-2 w-full flex justify-center">
-                <div className={`rounded-md px-1 py-[1px] text-[8px] font-bold border ${isPro ? 'bg-yellow-400 text-black' : 'bg-secondary text-secondary-foreground'}`}>
+                <div className={`rounded-md px-2 py-0.5 text-[9px] font-bold border transition-all duration-300 ${
+                  isPro 
+                    ? 'bg-gradient-to-r from-yellow-400 to-yellow-500 text-black border-yellow-300 shadow-sm' 
+                    : 'bg-secondary text-secondary-foreground border-border'
+                }`}>
                   {isPro ? 'PRO' : 'FREE'}
                 </div>
               </div>
+
+              {/* Pro Sparkle Effect */}
+              {isPro && (
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full animate-pulse">
+                  <div className="absolute inset-0 bg-yellow-400 rounded-full animate-ping opacity-75"></div>
+                </div>
+              )}
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56" align="end" forceMount>
+          <DropdownMenuContent className="w-64" align="end" forceMount>
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none">{session.user.name}</p>
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-medium leading-none">{session.user.name}</p>
+                  {isPro && (
+                    <div className="px-2 py-0.5 bg-gradient-to-r from-yellow-400 to-yellow-500 text-black text-[10px] font-bold rounded-full">
+                      PRO
+                    </div>
+                  )}
+                </div>
                 <p className="text-xs leading-none text-muted-foreground">{session.user.email}</p>
+                {isPro && (
+                  <p className="text-xs text-yellow-600 dark:text-yellow-400 font-medium">
+                    FREEPRO2024 Active
+                  </p>
+                )}
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem asChild><Link href="/dashboard">Dashboard</Link></DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/dashboard" className="flex items-center gap-2">
+                <span>Dashboard</span>
+                {isPro && <span className="text-yellow-500">✨</span>}
+              </Link>
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => signOut()}>Logout</DropdownMenuItem>
           </DropdownMenuContent>

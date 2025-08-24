@@ -19,7 +19,7 @@ const plansData = [
     {
         title: "Guest (No Login)",
         description: "For quick, anonymous use.",
-        isCurrent: true, // To identify the current plan
+        isCurrent: true,
         isPopular: false,
         button: {
             label: "You are here",
@@ -37,13 +37,33 @@ const plansData = [
         ]
     },
     {
+        title: "Discord Free",
+        description: "Basic Discord integration.",
+        isPopular: false,
+        button: {
+            label: "Sign in with Discord",
+            variant: "outline",
+            onClick: () => signIn('discord', { callbackUrl: '/dashboard' })
+        },
+        features: [
+            { text: "10 Emails per Mailbox", tooltip: "The 10 most recent emails are kept on our server." },
+            { text: "24-Hour Email Storage", tooltip: "Emails are automatically deleted after 24 hours." },
+            { text: "1MB Attachment Limit", tooltip: "Receive emails with attachments up to 1MB." },
+            { text: "Custom Email Names", tooltip: "Create your own custom email address prefixes." },
+            { text: "Basic Keyboard Shortcuts" },
+            { text: "Save to Browser Storage", tooltip: "You can choose to save important emails forever in your own browser." },
+            { text: "No Custom Domains", notAvailable: true },
+        ]
+    },
+    {
         title: "Discord Pro",
         description: "For power users & developers.",
         isPopular: true,
+        subtitle: "Requires FREEPRO2024 code",
         button: {
-            label: "Sign in with Discord",
+            label: "Get Pro Access",
             variant: "default",
-            onClick: () => signIn('discord', { callbackUrl: '/dashboard' })
+            requiresCode: true
         },
         features: [
             { text: "Unlimited Mailbox Size" },
@@ -170,7 +190,7 @@ export function AuthPopup({ isOpen, onClose }: AuthPopupProps) {
                         </DialogDescription>
                     </DialogHeader>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-6">
                         {plansData.map((plan) => {
                             const isLoadingThisPlan = loadingPlan === plan.title; // <-- NEW: Check if this plan is loading
                             return (
@@ -184,24 +204,13 @@ export function AuthPopup({ isOpen, onClose }: AuthPopupProps) {
                                         </div>
                                     )}
                                     <h3 className="text-xl font-bold text-center">{plan.title}</h3>
-                                    <p className="text-muted-foreground text-center text-sm mb-4 h-10">{plan.description}</p>
+                                    <p className="text-muted-foreground text-center text-sm mb-2">{plan.description}</p>
+                                    {plan.subtitle && (
+                                        <p className="text-center text-xs text-primary font-medium mb-2">{plan.subtitle}</p>
+                                    )}
     
                                     <div className="text-center mb-6 h-16 flex items-center justify-center">
-                                        {plan.title === "Discord Pro" ? (
-                                            isGeoLoading ? (
-                                                <div className="space-y-2">
-                                                    <Skeleton className="h-8 w-24 mx-auto" />
-                                                    <Skeleton className="h-4 w-20 mx-auto" />
-                                                </div>
-                                            ) : (
-                                                <div className="flex flex-col items-center">
-                                                    <p className="text-3xl font-bold">{pricing.currency}{pricing.monthly} <span className="text-lg font-normal text-muted-foreground">/ month</span></p>
-                                                    <p className="text-muted-foreground text-sm">{pricing.yearlyText}</p>
-                                                </div>
-                                            )
-                                        ) : (
-                                            <p className="text-3xl font-bold">$0 <span className="text-lg font-normal text-muted-foreground">/ forever</span></p>
-                                        )}
+                                        <p className="text-3xl font-bold">$0 <span className="text-lg font-normal text-muted-foreground">/ forever</span></p>
                                     </div>
     
                                     <ul className="space-y-3 mb-8 flex-grow">
@@ -213,13 +222,16 @@ export function AuthPopup({ isOpen, onClose }: AuthPopupProps) {
                                     {/* --- REVISED BUTTON LOGIC --- */}
                                     <Button
                                         onClick={() => {
-                                            if (plan.button.onClick) {
-                                                setLoadingPlan(plan.title); // Set loading state for this plan
-                                                plan.button.onClick();   // Execute the sign-in action
+                                            if (plan.button.requiresCode) {
+                                                // For pro plan, show the redeem section
+                                                return;
+                                            } else if (plan.button.onClick) {
+                                                setLoadingPlan(plan.title);
+                                                plan.button.onClick();
                                             }
                                         }}
                                         variant={plan.button.variant as any}
-                                        disabled={plan.button.disabled || isLoadingThisPlan} // Disable if this plan is loading
+                                        disabled={plan.button.disabled || isLoadingThisPlan}
                                         className="w-full"
                                     >
                                         {isLoadingThisPlan ? (
@@ -229,7 +241,7 @@ export function AuthPopup({ isOpen, onClose }: AuthPopupProps) {
                                             </>
                                         ) : (
                                             <>
-                                                {plan.title.includes("Discord") && ( // Show logo for Discord plans
+                                                {plan.title.includes("Discord") && (
                                                     <FaDiscord className="w-5 h-5 mr-2" />
                                                 )}
                                                 {plan.button.label}
@@ -239,31 +251,37 @@ export function AuthPopup({ isOpen, onClose }: AuthPopupProps) {
                                     
                                     {/* Redeem Code Section - Only show for Discord Pro plan */}
                                     {plan.title === "Discord Pro" && (
-                                        <div className="mt-4 p-4 bg-muted/50 rounded-lg border">
-                                            <div className="flex items-center gap-2 mb-2">
-                                                <Gift className="h-4 w-4 text-primary" />
-                                                <span className="text-sm font-medium">Have a redeem code?</span>
+                                        <div className="mt-4 p-4 bg-gradient-to-r from-primary/10 to-primary/5 rounded-lg border border-primary/20">
+                                            <div className="flex items-center gap-2 mb-3">
+                                                <Gift className="h-5 w-5 text-primary" />
+                                                <span className="text-sm font-semibold text-primary">Redeem FREEPRO2024</span>
                                             </div>
-                                            <div className="flex gap-2">
-                                                <Input
-                                                    type="text"
-                                                    placeholder="Enter redeem code"
-                                                    value={redeemCode}
-                                                    onChange={(e) => setRedeemCode(e.target.value.toUpperCase())}
-                                                    className="flex-1"
-                                                    disabled={isRedeeming}
-                                                />
-                                                <Button
-                                                    onClick={handleRedeemCode}
-                                                    disabled={isRedeeming || !redeemCode.trim()}
-                                                    size="sm"
-                                                >
-                                                    {isRedeeming ? (
-                                                        <Loader2 className="w-4 h-4 animate-spin" />
-                                                    ) : (
-                                                        "Redeem"
-                                                    )}
-                                                </Button>
+                                            <div className="space-y-3">
+                                                <div className="flex gap-2">
+                                                    <Input
+                                                        type="text"
+                                                        placeholder="FREEPRO2024"
+                                                        value={redeemCode}
+                                                        onChange={(e) => setRedeemCode(e.target.value.toUpperCase())}
+                                                        className="flex-1 font-mono"
+                                                        disabled={isRedeeming}
+                                                    />
+                                                    <Button
+                                                        onClick={handleRedeemCode}
+                                                        disabled={isRedeeming || !redeemCode.trim()}
+                                                        size="sm"
+                                                        className="px-6"
+                                                    >
+                                                        {isRedeeming ? (
+                                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                                        ) : (
+                                                            "Redeem"
+                                                        )}
+                                                    </Button>
+                                                </div>
+                                                <p className="text-xs text-muted-foreground">
+                                                    Enter the code above, then sign in with Discord to unlock all Pro features.
+                                                </p>
                                             </div>
                                         </div>
                                     )}
