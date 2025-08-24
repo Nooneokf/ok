@@ -64,10 +64,14 @@ export default function DashboardClient({ initialData, initialAccessLevel }: Das
                         <div className="px-3 py-1 bg-gradient-to-r from-yellow-400 to-yellow-500 text-black text-sm font-bold rounded-full">
                             PRO
                         </div>
-                        <span className="text-sm text-muted-foreground">FREEPRO2024 Activated</span>
+                        <span className="text-sm text-muted-foreground">Pro Plan Activated</span>
                     </div>
-                    <h1 className="text-4xl font-bold mb-2">Discord Pro Dashboard</h1>
-                    <p className="text-muted-foreground">Manage your custom domains and email preferences</p>
+                    <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">
+                        Pro Dashboard
+                    </h1>
+                    <p className="text-muted-foreground text-lg">
+                        Welcome {session?.user?.name}! Manage your custom domains and email preferences
+                    </p>
                 </div>
                 <div className="grid gap-8 max-w-6xl mx-auto">
                     <CustomDomainManager initialDomains={data.customDomains} />

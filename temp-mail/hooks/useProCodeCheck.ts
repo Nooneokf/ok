@@ -7,36 +7,41 @@ export function useProCodeCheck() {
   const { data: session, update, status } = useSession();
 
   useEffect(() => {
-    const checkAndUpgradeProStatus = async () => {
-      // Only check if user is authenticated and currently on free plan
-      if (status === 'authenticated' && session?.user && session.user.plan === 'free') {
-        const hasProCode = localStorage.getItem('hasProCode');
-        const proCodeRedeemed = localStorage.getItem('proCodeRedeemed');
-        
-        if (hasProCode === 'true' && proCodeRedeemed === 'FREEPRO2024') {
-          console.log('Pro code detected, upgrading session...');
+    // Check if user needs plan verification on session load
+    const verifyUserPlan = async () => {
+      if (status === 'authenticated' && session?.user?.id) {
+        try {
+          // Verify current plan status with backend
+          const response = await fetch('/api/verify-plan', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: session.user.id })
+          });
           
-          try {
-            // Update the session to pro status
-            await update({
-              plan: 'pro',
-              hasProCode: true
-            });
+          if (response.ok) {
+            const data = await response.json();
             
-            console.log('Session upgraded to pro successfully');
-          } catch (error) {
-            console.error('Failed to upgrade session:', error);
+            // Update session if plan status differs
+            if (data.plan !== session.user.plan) {
+              await update({
+                plan: data.plan,
+                hasProCode: data.hasProCode
+              });
+            }
           }
+        } catch (error) {
+          console.error('Failed to verify plan status:', error);
         }
       }
     };
 
-    checkAndUpgradeProStatus();
-  }, [session, status, update]);
+    verifyUserPlan();
+  }, [session?.user?.id, status, update]);
 
   return {
     isPro: session?.user?.plan === 'pro',
     hasSession: status === 'authenticated',
-    isLoading: status === 'loading'
+    isLoading: status === 'loading',
+    user: session?.user
   };
 }

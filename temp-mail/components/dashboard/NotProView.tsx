@@ -32,31 +32,32 @@ export default function NotProView() {
 
       const data = await response.json();
 
-      if (response.ok) {
+      if (response.ok && data.validCode) {
         toast.success("Pro code redeemed successfully! Upgrading your account...");
         setRedeemCode("");
         
-        // Store the redemption locally
-        localStorage.setItem("hasProCode", "true");
-        localStorage.setItem("proCodeRedeemed", redeemCode.toUpperCase());
-        
-        // Call upgrade API to update session
+        // Call upgrade API with the validated code
         try {
           const upgradeResponse = await fetch("/api/upgrade-plan", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ hasProCode: true }),
+            body: JSON.stringify({ validCode: true }),
           });
           
+          const upgradeData = await upgradeResponse.json();
+          
           if (upgradeResponse.ok) {
-            // Reload the page to refresh with new pro status
+            toast.success("Account upgraded to Pro successfully!");
+            // Trigger session update and redirect
             setTimeout(() => {
               window.location.reload();
-            }, 1000);
+            }, 1500);
+          } else {
+            toast.error(upgradeData.message || "Failed to upgrade account");
           }
         } catch (error) {
           console.error("Failed to upgrade plan:", error);
-          window.location.reload(); // Fallback to page reload
+          toast.error("Failed to upgrade account. Please try again.");
         }
       } else {
         toast.error(data.message || "Invalid redeem code");
@@ -89,7 +90,7 @@ export default function NotProView() {
           </div>
           <h1 className="text-4xl font-bold mb-2">Upgrade to Pro</h1>
           <p className="text-muted-foreground text-lg">
-            Unlock powerful features with the FREEPRO2024 code
+            Unlock powerful features with a Pro redemption code
           </p>
         </div>
 
@@ -126,14 +127,14 @@ export default function NotProView() {
             <CardContent className="space-y-4">
               <div className="p-4 bg-gradient-to-r from-primary/10 to-primary/5 rounded-lg border border-primary/20">
                 <div className="text-center mb-4">
-                  <div className="text-2xl font-bold text-primary mb-1">FREEPRO2024</div>
-                  <div className="text-sm text-muted-foreground">Enter this code to unlock Pro features</div>
+                  <div className="text-lg font-semibold text-primary mb-1">Enter Redemption Code</div>
+                  <div className="text-sm text-muted-foreground">Enter your Pro access code to unlock features</div>
                 </div>
                 
                 <div className="space-y-3">
                   <Input
                     type="text"
-                    placeholder="Enter FREEPRO2024"
+                    placeholder="Enter your redemption code"
                     value={redeemCode}
                     onChange={(e) => setRedeemCode(e.target.value.toUpperCase())}
                     className="font-mono text-center"
@@ -148,7 +149,7 @@ export default function NotProView() {
                     {isRedeeming ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Redeeming...
+                        Processing...
                       </>
                     ) : (
                       <>
@@ -161,7 +162,12 @@ export default function NotProView() {
               </div>
               
               <div className="text-xs text-muted-foreground text-center">
-                After redemption, your account will be upgraded to Pro instantly
+                Valid codes upgrade your account to Pro with all premium features
+              </div>
+              
+              <div className="text-xs text-muted-foreground text-center space-y-1">
+                <p>Don't have a code? Contact support or check our promotions.</p>
+                <p className="font-mono text-xs">Example codes: TEMPMAIL_PRO_2024, PREMIUM_ACCESS_2024</p>
               </div>
             </CardContent>
           </Card>
