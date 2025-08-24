@@ -24,4 +24,4 @@ mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd temp-mail && npm run dev"
+args = "cd temp-mail && npm run dev && npm run build"
