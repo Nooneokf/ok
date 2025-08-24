@@ -18,9 +18,10 @@ import { GoogleAnalytics } from '@next/third-parties/google';
 import "@/styles/global.css";
 import Providers from "@/components/Providers";
 import { getServerSession } from "next-auth"; // server-side session fetch
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const session = await getServerSession(); // fetch session server-side
+  const session = await getServerSession(authOptions); // fetch session server-side with proper auth config
 
   return (
     <html lang="en">

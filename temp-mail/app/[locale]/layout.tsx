@@ -6,6 +6,7 @@ import { clsx } from 'clsx';
 import { Inter } from 'next/font/google';
 import { routing } from '@/i18n/routing';
 import '@/styles/global.css';
+import { SessionDebug } from '@/components/SessionDebug';
 
 type Props = {
     children: ReactNode;
@@ -53,6 +54,7 @@ export default async function LocaleLayout({ children, params }: Props) {
 
     return (
         <NextIntlClientProvider>
+            <SessionDebug />
             {children}
         </NextIntlClientProvider>
     );

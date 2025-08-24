@@ -19,8 +19,10 @@ import { signOut, useSession } from 'next-auth/react';
 import { Session } from 'next-auth';
 
 export function AppHeader({ initialSession }: { initialSession: Session | null; }) {
-  const { data: _, status } = useSession()
-  const session = initialSession
+  const { data: session, status } = useSession()
+  // Use client-side session data instead of server-side initialSession for real-time updates
+  // Fallback to initialSession if client session is still loading
+  const activeSession = session || (status === 'loading' ? initialSession : null)
   const t = useTranslations('AppHeader');
   const { theme, setTheme } = useTheme();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -74,8 +76,8 @@ export function AppHeader({ initialSession }: { initialSession: Session | null; 
       return <div className="h-10 w-10 bg-muted rounded-full animate-pulse"></div>;
     }
 
-    if (status === 'authenticated' && session?.user) {
-      const userPlan = session.user?.plan || 'free';
+    if (status === 'authenticated' && activeSession?.user) {
+      const userPlan = activeSession.user?.plan || 'free';
       const isPro = userPlan === 'pro';
 
       return (
@@ -88,15 +90,15 @@ export function AppHeader({ initialSession }: { initialSession: Session | null; 
                   ? 'border-yellow-400 shadow-lg shadow-yellow-400/20' 
                   : 'border-slate-300 hover:border-slate-400'
               }`}>
-                {session.user.image ? (
+                {activeSession.user.image ? (
                   <img
-                    src={session.user.image}
-                    alt={session.user.name || 'User avatar'}
+                    src={activeSession.user.image}
+                    alt={activeSession.user.name || 'User avatar'}
                     className="rounded-full object-cover w-full h-full"
                   />
                 ) : (
                   <div className="flex items-center justify-center h-full w-full bg-muted rounded-full text-muted-foreground">
-                    {session.user.name?.charAt(0).toUpperCase()}
+                    {activeSession.user.name?.charAt(0).toUpperCase()}
                   </div>
                 )}
               </div>
@@ -124,14 +126,14 @@ export function AppHeader({ initialSession }: { initialSession: Session | null; 
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
                 <div className="flex items-center gap-2">
-                  <p className="text-sm font-medium leading-none">{session.user.name}</p>
+                  <p className="text-sm font-medium leading-none">{activeSession.user.name}</p>
                   {isPro && (
                     <div className="px-2 py-0.5 bg-gradient-to-r from-yellow-400 to-yellow-500 text-black text-[10px] font-bold rounded-full">
                       PRO
                     </div>
                   )}
                 </div>
-                <p className="text-xs leading-none text-muted-foreground">{session.user.email}</p>
+                <p className="text-xs leading-none text-muted-foreground">{activeSession.user.email}</p>
                 {isPro && (
                   <p className="text-xs text-yellow-600 dark:text-yellow-400 font-medium">
                     FREEPRO2024 Active
